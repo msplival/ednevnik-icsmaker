@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
+import argparse
 from icalendar import Calendar, Event
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 
 # Timezone setup
@@ -86,7 +87,7 @@ def create_calendar(events):
         event.add('location', "Room 101")
         event.add('description', "Replace this with the actual event details")
         event.add('uid', f"{event_start.strftime('%Y%m%dT%H%M%S')}-dummy@yourdomain.com")
-        
+
         # Set recurrence rule for every two weeks
         event.add('rrule', {'freq': 'weekly', 'interval': 2, 'byday': day})
 
@@ -95,9 +96,15 @@ def create_calendar(events):
     return calendar
 
 def main():
-    # Read events from the input file
-    input_file = 'events.txt'  # Name of the file with the event details
-    events = read_events_from_file(input_file)
+    # Set up command-line argument parsing
+    parser = argparse.ArgumentParser(description='Generate an ICS file from event details.')
+    parser.add_argument('events_file', help='Path to the events file')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Read events from the provided input file
+    events = read_events_from_file(args.events_file)
 
     # Create the calendar with the events
     calendar = create_calendar(events)
