@@ -4,6 +4,7 @@ import argparse
 from icalendar import Calendar, Event
 from datetime import datetime
 import pytz
+import sys
 
 # Timezone setup
 tz = pytz.timezone('Europe/Zagreb')
@@ -99,6 +100,7 @@ def main():
     # Set up command-line argument parsing
     parser = argparse.ArgumentParser(description='Generate an ICS file from event details.')
     parser.add_argument('events_file', help='Path to the events file')
+    parser.add_argument('-o', '--output', help='Name of the output ICS file (if not provided, write to stdout)')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -109,11 +111,13 @@ def main():
     # Create the calendar with the events
     calendar = create_calendar(events)
 
-    # Write calendar to .ics file
-    with open('schedule.ics', 'wb') as file:
-        file.write(calendar.to_ical())
-
-    print("ICS file 'schedule.ics' created successfully.")
+    # Write calendar to output file or stdout
+    if args.output:
+        with open(args.output, 'wb') as file:
+            file.write(calendar.to_ical())
+        print(f"ICS file '{args.output}' created successfully.")
+    else:
+        sys.stdout.buffer.write(calendar.to_ical())
 
 if __name__ == '__main__':
     main()
