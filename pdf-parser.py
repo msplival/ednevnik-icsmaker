@@ -29,7 +29,7 @@ def parse_schedule_text(text):
 
     schedule = []
     current_day = None
-    slot = None
+    slot = 0  # Start slot numbering at 0
 
     for line in lines:
         line = line.strip()
@@ -37,16 +37,17 @@ def parse_schedule_text(text):
         if line in day_map:
             # Found a day, update the current day
             current_day = day_map[line]
-            slot = None  # Reset slot to None at the start of a new day
-        elif line.endswith('.') and line[:-1].isdigit():
-            # Found a slot number, update slot
-            slot = int(line[:-1])
-        elif current_day and slot is not None and line:
-            # If there is a current day, slot, and class information
+            slot = 0  # Reset slot counter for each new day
+        elif current_day and line:
+            # If there is a current day and the line contains class information
             schedule.append([current_day, line, slot])
+            slot += 1  # Increment the slot number for the next class
         elif current_day and not line:
             # If the line is empty but we have a current day, continue to next line
             continue
+        else:
+            # If no valid day or class is found, reset
+            current_day = None
 
     return schedule
 
