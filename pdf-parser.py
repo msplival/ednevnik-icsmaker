@@ -2,6 +2,8 @@
 
 import fitz  # PyMuPDF
 import pandas as pd
+import argparse
+import sys
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
@@ -45,11 +47,14 @@ def parse_schedule_text(text):
     return schedule
 
 def main():
-    # Path to the PDF file
-    pdf_path = "/tmp/rasp.pdf"
+    # Argument parsing
+    parser = argparse.ArgumentParser(description="Parse a school schedule from a PDF file.")
+    parser.add_argument("pdf_path", help="Path to the source PDF file")
+    parser.add_argument("-o", "--output", help="Path to the output CSV file (default: stdout)", default=None)
+    args = parser.parse_args()
 
     # Extract text from the PDF
-    text = extract_text_from_pdf(pdf_path)
+    text = extract_text_from_pdf(args.pdf_path)
 
     # Parse the extracted text to get the schedule
     schedule = parse_schedule_text(text)
@@ -57,8 +62,11 @@ def main():
     # Convert to DataFrame
     df = pd.DataFrame(schedule, columns=['Day', 'Class', 'Slot'])
 
-    # Write to CSV file
-    df.to_csv("schedule_output.csv", index=False, header=False)
+    # Write to output
+    if args.output:
+        df.to_csv(args.output, index=False, header=False)
+    else:
+        df.to_csv(sys.stdout, index=False, header=False)
 
 if __name__ == "__main__":
     main()
