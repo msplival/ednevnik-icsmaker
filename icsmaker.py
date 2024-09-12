@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+import argparse
 from icalendar import Calendar, Event
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
+import sys
 
 # Timezone setup
 tz = pytz.timezone('Europe/Zagreb')
@@ -86,7 +88,7 @@ def create_calendar(events):
         event.add('location', "Room 101")
         event.add('description', "Replace this with the actual event details")
         event.add('uid', f"{event_start.strftime('%Y%m%dT%H%M%S')}-dummy@yourdomain.com")
-        
+
         # Set recurrence rule for every two weeks
         event.add('rrule', {'freq': 'weekly', 'interval': 2, 'byday': day})
 
@@ -95,18 +97,27 @@ def create_calendar(events):
     return calendar
 
 def main():
-    # Read events from the input file
-    input_file = 'events.txt'  # Name of the file with the event details
-    events = read_events_from_file(input_file)
+    # Set up command-line argument parsing
+    parser = argparse.ArgumentParser(description='Generate an ICS file from event details.')
+    parser.add_argument('events_file', help='Path to the events file')
+    parser.add_argument('-o', '--output', help='Name of the output ICS file (if not provided, write to stdout)')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Read events from the provided input file
+    events = read_events_from_file(args.events_file)
 
     # Create the calendar with the events
     calendar = create_calendar(events)
 
-    # Write calendar to .ics file
-    with open('schedule.ics', 'wb') as file:
-        file.write(calendar.to_ical())
-
-    print("ICS file 'schedule.ics' created successfully.")
+    # Write calendar to output file or stdout
+    if args.output:
+        with open(args.output, 'wb') as file:
+            file.write(calendar.to_ical())
+        print(f"ICS file '{args.output}' created successfully.")
+    else:
+        sys.stdout.buffer.write(calendar.to_ical())
 
 if __name__ == '__main__':
     main()
