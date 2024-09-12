@@ -14,14 +14,14 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 def parse_schedule_text(text):
-    # Croatian day names and their corresponding abbreviations
+    # Croatian day names and their corresponding abbreviations, including Saturday
     day_map = {
         'Ponedjeljak': 'MO',
         'Utorak': 'TU',
         'Srijeda': 'WE',
         'Četvrtak': 'TH',
         'Petak': 'FR',
-        # 'Subota' (Saturday) is not included in the requested format
+        'Subota': 'SA',
     }
 
     # Split the extracted text by newlines
@@ -43,6 +43,12 @@ def parse_schedule_text(text):
         elif current_day and line:
             # If there is a current day and the line contains class information
             schedule.append([current_day, line, slot])
+        elif current_day and not line:
+            # If the line is empty but we have a current day, continue to next line
+            continue
+        else:
+            # Reset current day if no valid day or class is found
+            current_day = None
 
     return schedule
 
